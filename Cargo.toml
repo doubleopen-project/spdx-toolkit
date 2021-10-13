@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2021 HH Partners
+# 
+# SPDX-License-Identifier: MIT
+
+[package]
+authors = ["Mikko Murto <mikko.murto@hhpartners.fi>"]
+categories = ["data-structures"]
+description = "Toolkit for interacting with SPDX Documents"
+documentation = "https://docs.rs/spdx-toolkit"
+edition = "2018"
+homepage = "https://github.com/doubleopen-project/spdx-toolkit"
+keywords = ["SPDX"]
+license = "MIT"
+name = "spdx-toolkit"
+readme = "README.md"
+repository = "https://github.com/doubleopen-project/spdx-toolkit"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+petgraph = "0.6"
+reqwest = {version = "0.11", features = ["blocking", "json"]}
+serde = {version = "1", features = ["derive"]}
+serde_json = "1"
+spdx-rs = "0.2"
+thiserror = "1"
