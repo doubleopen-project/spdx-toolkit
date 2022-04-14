@@ -47,6 +47,18 @@ impl LicenseList {
             .iter()
             .any(|exception| exception.license_exception_id == exception_id)
     }
+
+    #[allow(clippy::doc_markdown)]
+    /// Return true if the input expression is a license on the SPDX license list, a LicenseRef
+    /// license, a `DocumentRef` license, `NONE` or `NOASSERTION`.
+    pub fn is_valid_license(&self, expression: &str) -> bool {
+        expression == "NOASSERTION"
+            || expression == "NONE"
+            || expression.starts_with("LicenseRef-")
+            || expression.starts_with("DocumentRef-")
+            || self.includes_license(&expression.replace('+', ""))
+            || self.includes_exception(expression)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -112,5 +124,17 @@ mod test_license_list {
 
         assert!(!license_list.includes_license("BSD"));
         assert!(!license_list.includes_exception("BSD"));
+    }
+
+    #[test]
+    fn correctly_determine_validity_of_licenses() {
+        let license_list = LicenseList::from_github().unwrap();
+        assert!(license_list.is_valid_license("MIT"));
+        assert!(license_list.is_valid_license("GPL-2.0-or-later"));
+        assert!(!license_list.is_valid_license("invalid-license"));
+        assert!(license_list.is_valid_license("LicenseRef-license1"));
+        assert!(license_list.is_valid_license("DocumentRef-document:LicenseRef-license1"));
+        assert!(license_list.is_valid_license("NONE"));
+        assert!(license_list.is_valid_license("NOASSERTION"));
     }
 }
