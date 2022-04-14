@@ -18,18 +18,24 @@ pub struct LicenseList {
 }
 
 impl LicenseList {
+    /// Get [`LicenseList`] from GitHub. Specify version as `Some("v3.14")` or use None for the
+    /// latest version.
+    ///
     /// # Errors
     ///
     /// Returns [`SpdxError`] if there is a problem with retrieving the license list from GitHub
     /// or if deserializing the data fails.
-    pub fn from_github() -> Result<Self, Error> {
-        let licenses_url =
-            "https://raw.githubusercontent.com/spdx/license-list-data/master/json/licenses.json";
+    pub fn from_github(version: Option<&str>) -> Result<Self, Error> {
+        let version = version.unwrap_or("master");
+
+        let licenses_url = format!(
+            "https://raw.githubusercontent.com/spdx/license-list-data/{version}/json/licenses.json"
+        );
         let body = reqwest::blocking::get(licenses_url)?.text()?;
         let mut license_list: Self = serde_json::from_str(&body)?;
 
         let exceptions_url =
-            "https://raw.githubusercontent.com/spdx/license-list-data/master/json/exceptions.json";
+            format!("https://raw.githubusercontent.com/spdx/license-list-data/{version}/json/exceptions.json");
         let body = reqwest::blocking::get(exceptions_url)?.text()?;
         let exceptions_list: Self = serde_json::from_str(&body)?;
         license_list.exceptions = exceptions_list.exceptions;
@@ -112,15 +118,25 @@ mod test_license_list {
 
     #[test]
     fn from_github_works() {
-        let license_list = LicenseList::from_github().unwrap();
+        let license_list = LicenseList::from_github(None).unwrap();
 
         assert!(!license_list.licenses.is_empty());
         assert!(!license_list.exceptions.is_empty());
     }
 
     #[test]
+    fn correctly_get_older_version_from_github() {
+        let license_list = LicenseList::from_github(Some("v3.14")).unwrap();
+
+        assert!(!license_list.licenses.is_empty());
+        assert!(!license_list.exceptions.is_empty());
+
+        assert_eq!(license_list.license_list_version, "3.14".to_string());
+    }
+
+    #[test]
     fn bsd_works() {
-        let license_list = LicenseList::from_github().unwrap();
+        let license_list = LicenseList::from_github(None).unwrap();
 
         assert!(!license_list.includes_license("BSD"));
         assert!(!license_list.includes_exception("BSD"));
@@ -128,7 +144,7 @@ mod test_license_list {
 
     #[test]
     fn correctly_determine_validity_of_licenses() {
-        let license_list = LicenseList::from_github().unwrap();
+        let license_list = LicenseList::from_github(None).unwrap();
         assert!(license_list.is_valid_license("MIT"));
         assert!(license_list.is_valid_license("GPL-2.0-or-later"));
         assert!(!license_list.is_valid_license("invalid-license"));
