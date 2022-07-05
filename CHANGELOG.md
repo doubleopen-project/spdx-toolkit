@@ -8,6 +8,13 @@ SPDX-License-Identifier: MIT
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1](https://github.com/doubleopen-project/spdx-toolkit/compare/v0.3.0...v0.3.1) (2022-07-05)
+
+
+### Features
+
+* support new spdx-rs ([a2060e5](https://github.com/doubleopen-project/spdx-toolkit/commit/a2060e5f552556caf70128b65781768bd2878c27))
+
 ## [0.3.0](https://github.com/doubleopen-project/spdx-toolkit/compare/v0.2.1...v0.3.0) (2022-04-14)
 
 
